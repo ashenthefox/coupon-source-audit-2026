@@ -1,0 +1,23 @@
+name: Public coupon JSON/API contract tests
+on:
+  push:
+    paths:
+      - 'api_probe.py'
+      - '.github/workflows/api-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -u api_probe.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-json-api-contract-results
+          path: api_reports/
+          if-no-files-found: warn
+          retention-days: 7
