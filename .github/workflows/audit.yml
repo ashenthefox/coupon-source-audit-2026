@@ -1,0 +1,31 @@
+name: One-time public-source audit (read only)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'audit.py'
+      - 'inputs/**'
+      - '.github/workflows/audit.yml'
+permissions:
+  contents: read
+concurrency:
+  group: coupon-source-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python version
+        run: python3 --version
+      - name: Probe every registered source URL once
+        run: python3 -u audit.py
+      - name: Upload detailed source-by-source results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: read-only-source-audit
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
