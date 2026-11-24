@@ -1,0 +1,27 @@
+name: Deep public-feed, GitHub and merchant text diagnostics
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "deep_audit.py"
+      - ".github/workflows/deep-audit.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test feeds, repository metadata, merchant page text
+        run: python3 -u deep_audit.py
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deeper-coupon-evidence-results
+          path: deep_reports/
+          if-no-files-found: warn
+          retention-days: 7
